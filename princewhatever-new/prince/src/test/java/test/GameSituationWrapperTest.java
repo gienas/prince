@@ -12,7 +12,6 @@ import cz.yellen.xpg.common.action.Move;
 import cz.yellen.xpg.common.action.PickUp;
 import cz.yellen.xpg.common.stuff.GameSituation;
 import prince.GameContext;
-import prince.GameSituationWrapper;
 import prince.GameStrategyImpl;
 
 public class GameSituationWrapperTest {
