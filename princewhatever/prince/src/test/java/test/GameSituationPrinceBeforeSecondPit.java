@@ -14,6 +14,7 @@ public class GameSituationPrinceBeforeSecondPit extends GameSituationImpl {
 		Set<GameObject> set = new LinkedHashSet<GameObject>();
 		set.add( GameObjectCreator.create(1, "pit"));
 		set.add( GameObjectCreator.create(-1, "pit"));
+		set.add( GameObjectCreator.create(0, "prince"));
 		return set;
 	}
 

@@ -7,9 +7,18 @@ import cz.yellen.xpg.common.stuff.GameSituation;
 
 public class GameStrategyImpl implements GameStrategy{
 	
-	public Action step(GameSituation situation) {
-		
-		return new GameSituationWrapper(situation).analyze();
+	private GameSituationManager manager ;
+	
+	public GameStrategyImpl() {
+		manager = new GameSituationManager();
 	}
 	
+	public Action step(GameSituation situation) {
+		
+		return getManager().manage(situation);
+	}
+	
+	public GameSituationManager getManager() {
+		return manager;
+	}
 }

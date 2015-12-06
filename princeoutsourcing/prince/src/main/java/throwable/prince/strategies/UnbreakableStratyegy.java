@@ -91,6 +91,7 @@ public class UnbreakableStratyegy implements GameStrategy {
 			for (GameObject bottle : bottles) {
 				if (bottle.getPosition() == prince.getPosition()) {
 					actualAction = new PickUp(bottle);
+					System.out.println("get bootle");
 				}
 			}
 		}
@@ -110,6 +111,7 @@ public class UnbreakableStratyegy implements GameStrategy {
 				if (obj.getProperty("odour") != null && obj.getProperty("odour").equals("mint")
 						&& !obj.getProperty("volume").equals("0")) {
 					actualAction = new Use(obj, prince);
+					System.out.println("drink");
 				}
 
 			}
