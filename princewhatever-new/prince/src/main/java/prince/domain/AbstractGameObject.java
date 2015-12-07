@@ -12,6 +12,11 @@ import cz.yellen.xpg.common.stuff.GameObject;
 import prince.GameContext;
 import prince.GameObjectEnum;
 
+/**
+ * Abstract wrapper class to all game objects 
+ * @author neugeeug
+ *
+ */
 public abstract class AbstractGameObject {
 
 	private GameObject orgObject;

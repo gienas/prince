@@ -14,10 +14,20 @@ import cz.yellen.xpg.common.stuff.GameSituation;
 import prince.domain.AbstractGameObject;
 import prince.domain.PrinceGameObject;
 
+/**
+ * 
+ * @author neugeeug
+ *
+ */
 public class GameContext {
 
 	private static GameContext gc;
 
+	/**
+	 * Game context initialization
+	 * @param gs
+	 * @return
+	 */
 	public static GameContext createContext(GameSituation gs) {
 		if (gc == null) {
 			gc = new GameContext();
@@ -28,6 +38,10 @@ public class GameContext {
 		return gc;
 	}
 
+	/**
+	 *  Get context, before should be initialized by <link>createContext</link>
+	 * @return
+	 */
 	public static GameContext getContext() {
 		if (gc != null) {
 			return gc;
@@ -35,7 +49,6 @@ public class GameContext {
 		throw new IllegalStateException("Context not initialized yet");
 	}
 
-	/*---------------------------------------------------------------*/
 
 	private Set<AbstractGameObject> gameObjectSet = new LinkedHashSet<>();
 
@@ -53,7 +66,6 @@ public class GameContext {
 	}
 
 	public void setCurrentDirection(Direction cd) {
-		// TODO Auto-generated method stub
 		currentDirection = cd;
 	}
 
@@ -133,4 +145,13 @@ public class GameContext {
 	public void setGameSituation(GameSituation gameSituation) {
 		this.gameSituation = gameSituation;
 	}
+	
+	public AlgorithmStrategy getCurrentAlgorithm() {
+		return currentAlgorithm;
+	}
+	
+	public void setCurrentAlgorithm(AlgorithmStrategy currentAlgorithm) {
+		this.currentAlgorithm = currentAlgorithm;
+	}
+	
 }

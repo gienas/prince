@@ -13,6 +13,11 @@ import prince.domain.PrinceGameObject;
 import prince.domain.SwordGameObject;
 import prince.domain.WallGameObject;
 
+/**
+ * All new game objects should be added here
+ * @author neugeeug
+ *
+ */
 public enum GameObjectEnum {
 
 	PRINCE("prince",  PrinceGameObject.class),

@@ -7,6 +7,11 @@ import cz.yellen.xpg.common.action.Move;
 import cz.yellen.xpg.common.stuff.GameSituation;
 import prince.domain.AbstractGameObject;
 
+/**
+ * 
+ * @author neugeeug
+ *
+ */
 public class GameSituationManager {
 
 
@@ -16,7 +21,7 @@ public class GameSituationManager {
 		//create game context
 		GameContext.createContext(gs);
 		
-		//set data structure
+		//set up data structure
 		GameContext.getContext().analyzeEnvFillObjectSet(gs);
 		
 		//select algorithm
@@ -34,7 +39,6 @@ public class GameSituationManager {
 			retAction = objAction != null ? objAction : retAction;
 		}
 		
-		//System.out.println("Call " + retAction);
 		return retAction;
 	}
 
