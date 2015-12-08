@@ -32,11 +32,12 @@ public class UnbreakableStratyegy implements GameStrategy {
 	private static final String BOTTLE = "bottle";
 	private static final String CHOPPER = "chopper";
 
-	Direction actualDirection = Direction.FORWARD;
+	Direction actualDirection = Direction.BACKWARD;
 
 	int startPosition = 0;
 	int actualPosition = 0;
 	Action actualAction = move();
+	boolean stopProcessing = false;
 
 	GameObject prince;
 	GameObject wall;
@@ -57,35 +58,50 @@ public class UnbreakableStratyegy implements GameStrategy {
 	public Action step(GameSituation situation) {
 
 		actualAction = move();
+
 		lookAround(situation);
 
 		// If the gate is visible
-		if (gate != null) { // We can see the gate so we move towards the gate
-			if (gate.getPosition() == prince.getPosition()) {
-				return new Enter(gate);
-			} else if (gate.getPosition() < prince.getPosition()) {
-				return new Move(Direction.BACKWARD);
-			} else if (gate.getPosition() > prince.getPosition()) {
-				return new Move(Direction.FORWARD);
-			}
-		}
 
-		wallHandler();
+		if (gateHandler())
+			return actualAction;
 
-		pitHandler();
+		if (wallHandler())
+			return actualAction;
 
-		guardHandler();
+		if (pitHandler())
+			return actualAction;
 
-		swordHandler();
+		if (guardHandler())
+			return actualAction;
 
-		chopperHandler();
-		
-		bottleHandler();
+		if (swordHandler())
+			return actualAction;
+
+		if (chopperHandler())
+			return actualAction;
+
+		if (bottleHandler())
+			return actualAction;
 
 		return actualAction;
 	}
 
-	private void bottleHandler() {
+	private boolean gateHandler() {
+		if (gate != null) { // We can see the gate so we move towards the gate
+			if (gate.getPosition() == prince.getPosition()) {
+				actualAction = new Enter(gate);
+				return true;
+			} else if (gate.getPosition() < prince.getPosition()) {
+				actualAction = new Move(Direction.BACKWARD);
+			} else if (gate.getPosition() > prince.getPosition()) {
+				actualAction = new Move(Direction.FORWARD);
+			}
+		}
+		return false;
+	}
+
+	private boolean bottleHandler() {
 		Integer health = Integer.valueOf(prince.getProperty("health"));
 		if (bottles != null) {
 			for (GameObject bottle : bottles) {
@@ -94,15 +110,6 @@ public class UnbreakableStratyegy implements GameStrategy {
 				}
 			}
 		}
-
-		/**
-		 * if (sword != null) { // We can see the gate so we move towards the
-		 * gate if (sword.getPosition() == prince.getPosition()) { actualAction
-		 * = new PickUp(sword); } else if (sword.getPosition() <
-		 * prince.getPosition()) { actualAction = new Move(Direction.BACKWARD);
-		 * } else if (sword.getPosition() > prince.getPosition()) { actualAction
-		 * = new Move(Direction.FORWARD); } }
-		 */
 
 		if (health < 5) {
 			// FIXME bootels from prince
@@ -114,6 +121,7 @@ public class UnbreakableStratyegy implements GameStrategy {
 
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -121,7 +129,7 @@ public class UnbreakableStratyegy implements GameStrategy {
 	 * <p>
 	 * After direction change prince is obstacle aware.
 	 */
-	private void wallHandler() {
+	private boolean wallHandler() {
 		if (wall != null) {
 			if (prince.getPosition() < wall.getPosition()) {
 				actualDirection = Direction.BACKWARD;
@@ -129,45 +137,101 @@ public class UnbreakableStratyegy implements GameStrategy {
 				actualDirection = Direction.FORWARD;
 			}
 		}
+		return false;
 	}
 
 	/**
 	 * If prince sees a pit TODO
 	 */
-	private void pitHandler() {
+	private boolean pitHandler() {
 		// warning! Pit spotted // the pit handler :D
 		if (pits != null) {
 			// we are interested in the actual direction located obstacle
 
-			GameObject pit = getPitInDirectionOfMove(pits);
-
-			// jump over it
-			if (pit != null && prince.getPosition() < pit.getPosition()) {
-				if (actualDirection == Direction.FORWARD) {
-					actualAction = jump();
-				} else {
-					actualAction = move();
-				}
-			} else { // pit on the left
-				if (actualDirection == Direction.BACKWARD) {
-					actualAction = jump();
-				} else {
-					actualAction = move();
-				}
-			}
+			GameObject pit = getObstackleInDirectionOfMove(pits);
+			if (pit!= null)
+			{
+				actualAction = jump();
+			}	
+			
+//			// jump over it
+//			if (pit != null && prince.getPosition() < pit.getPosition()) {
+//				if (actualDirection == Direction.FORWARD) {
+//					actualAction = jump();
+//				} else {
+//					actualAction = move();
+//					System.out.println("mmmmmmmmmmmmmmmmmmmmmove");
+//				}
+//			} else { // pit on the left
+//				if (actualDirection == Direction.BACKWARD) {
+//					actualAction = jump();
+//				} else {
+//					actualAction = move();
+//					System.out.println("mmmmmmmmmmmmmmmmmmmmmove");
+//				}
+//			}
 		}
+		return false;
 	}
 
-	private GameObject getPitInDirectionOfMove(List<GameObject> pits2) {
+	private boolean guardHandler() {
+
+		if (guards == null)
+			return false;
+
+		GameObject guard = getObstackleInDirectionOfMove(guards);
+		GameObject sword = GameSituationPredicates.getObject("sword", prince.getStuff());
+		if (guard != null && !isGuardDead(guard)) {
+			if (sword != null) {
+				actualAction = new Use(sword, guard);
+			} else {
+				switchActualDirection();
+				actualAction = new Move(actualDirection);
+			}
+		}
+		return false;
+	}
+
+	private boolean chopperHandler() {
+		// TODO Auto-generated method stub
+		if (choppers == null)
+			return false;
+
+		// GameObject chopper = getChopperInDirectionOfMove(choppers);
+		GameObject chopper = getObstackleInDirectionOfMove(choppers);
+		if (chopper != null && chopper.getProperty("opening").equals("true")) {
+			actualAction = new Jump(actualDirection);
+		} else if (chopper != null) {
+			actualAction = new Wait();
+		}
+		return false;
+	}
+
+	private boolean swordHandler() {
+		if (sword != null) { // We can see the gate so we move towards the gate
+			if (sword.getPosition() == prince.getPosition()) {
+				actualAction = new PickUp(sword);
+			} else if (sword.getPosition() < prince.getPosition()) {
+				actualAction = new Move(Direction.BACKWARD);
+			} else if (sword.getPosition() > prince.getPosition()) {
+				actualAction = new Move(Direction.FORWARD);
+			}
+		}
+		return false;
+	}
+
+
+	// FIXME
+	private GameObject getObstackleInDirectionOfMove(List<GameObject> obstackles) {
 		int position = prince.getPosition();
 		if (actualDirection == Direction.FORWARD) {
-			for (GameObject obstacle : pits2) {
+			for (GameObject obstacle : obstackles) {
 				if (obstacle.getPosition() == position + 1) {
 					return obstacle;
 				}
 			}
 		} else { // BACK
-			for (GameObject obstacle : pits2) {
+			for (GameObject obstacle : obstackles) {
 				if (obstacle.getPosition() == position - 1) {
 					return obstacle;
 				}
@@ -176,64 +240,6 @@ public class UnbreakableStratyegy implements GameStrategy {
 		return null;
 	}
 
-	//FIXME switch on getObstacleInDirectionOfMove
-	private GameObject getGuardInDirectionOfMove(List<GameObject> guards) {
-		int position = prince.getPosition();
-		if (actualDirection == Direction.FORWARD) {
-			for (GameObject obstacle : guards) {
-				if (obstacle.getPosition() == position + 1) {
-					return obstacle;
-				}
-			}
-		} else { // BACK
-			for (GameObject obstacle : guards) {
-				if (obstacle.getPosition() == position - 1) {
-					return obstacle;
-				}
-			}
-		}
-		return null;
-	}
-
-	//FIXME switch on getObstacleInDirectionOfMove
-	private GameObject getChopperInDirectionOfMove(List<GameObject> choppers) {
-		int position = prince.getPosition();
-		if (actualDirection == Direction.FORWARD) {
-			for (GameObject obstacle : choppers) {
-				if (obstacle.getPosition() == position + 1) {
-					return obstacle;
-				}
-			}
-		} else { // BACK
-			for (GameObject obstacle : choppers) {
-				if (obstacle.getPosition() == position - 1) {
-					return obstacle;
-				}
-			}
-		}
-		return null;
-	}
-
-	//FIXME 
-	private GameObject getObstacleInDirectionOfMove( List<GameObject> choppers )
-	{
-		int position = prince.getPosition();
-		if (actualDirection == Direction.FORWARD) {
-			for (GameObject obstacle : choppers) {
-				if (obstacle.getPosition() == position + 1) {
-					return obstacle;
-				}
-			}
-		} else { // BACK
-			for (GameObject obstacle : choppers) {
-				if (obstacle.getPosition() == position - 1) {
-					return obstacle;
-				}
-			}
-		}
-		return null;
-	}
-	
 	private Move move() {
 		if (actualDirection == Direction.BACKWARD) {
 			actualPosition--;
@@ -282,50 +288,8 @@ public class UnbreakableStratyegy implements GameStrategy {
 		choppers = GameSituationPredicates.getObjects(CHOPPER, gameObjects);
 	}
 
-	private void guardHandler() {
-
-		if (guards == null)
-			return;
-
-		GameObject guard = getGuardInDirectionOfMove(guards);
-		GameObject sword = GameSituationPredicates.getObject("sword", prince.getStuff());
-		if (guard != null && !isGuardDead(guard)) {
-			if (sword != null) {
-				actualAction = new Use(sword, guard);
-			} else {
-				switchActualDirection();
-				actualAction = new Move(actualDirection);
-			}
-		}
-	}
-
-	private void chopperHandler() {
-		// TODO Auto-generated method stub
-		if (choppers == null)
-			return;
-		
-		GameObject chopper = getChopperInDirectionOfMove(choppers);
-		if (chopper != null && chopper.getProperty("opening").equals("true")) {
-			actualAction = new Jump(actualDirection);
-		} else if (chopper != null) {
-			actualAction = new Wait();
-		}
-	}
-
 	private boolean isGuardDead(GameObject guard) {
 		return guard.getProperties().get("dead").equals("true");
-	}
-
-	private void swordHandler() {
-		if (sword != null) { // We can see the gate so we move towards the gate
-			if (sword.getPosition() == prince.getPosition()) {
-				actualAction = new PickUp(sword);
-			} else if (sword.getPosition() < prince.getPosition()) {
-				actualAction = new Move(Direction.BACKWARD);
-			} else if (sword.getPosition() > prince.getPosition()) {
-				actualAction = new Move(Direction.FORWARD);
-			}
-		}
 	}
 
 }
