@@ -9,8 +9,10 @@ import prince.domain.ChopperGameObject;
 import prince.domain.GateGameObject;
 import prince.domain.GuardGameObject;
 import prince.domain.PitGameObject;
+import prince.domain.PortcullisGameObject;
 import prince.domain.PrinceGameObject;
 import prince.domain.SwordGameObject;
+import prince.domain.TileGameObject;
 import prince.domain.WallGameObject;
 
 /**
@@ -27,7 +29,9 @@ public enum GameObjectEnum {
 	GUARD("guard",  GuardGameObject.class),
 	SWORD("sword",  SwordGameObject.class),
 	CHOPPER("chopper",  ChopperGameObject.class),
-	BOOTLE("bottle", BootleGameObject.class);
+	BOOTLE("bottle", BootleGameObject.class),
+	TILE("tile", TileGameObject.class),
+	PORTCULLIS("portcullis", PortcullisGameObject.class);
 	
 	private String type;
 	private Class<? extends AbstractGameObject> clazz;

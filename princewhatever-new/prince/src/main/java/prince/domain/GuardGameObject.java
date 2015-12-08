@@ -6,6 +6,7 @@ import cz.yellen.xpg.common.action.Use;
 import cz.yellen.xpg.common.stuff.GameObject;
 import prince.GameContext;
 import prince.GameObjectEnum;
+import prince.domain.AbstractGameObject.ActionRet;
 
 
 public class GuardGameObject extends AbstractGameObject {
@@ -24,7 +25,7 @@ public class GuardGameObject extends AbstractGameObject {
 	}
 
 	@Override
-	public Action processObject() {
+	public ActionRet processObject() {
 		//TODO
 		Action retAction = null;
 		
@@ -51,7 +52,7 @@ public class GuardGameObject extends AbstractGameObject {
 		}	
 		
 		
-		return retAction;
+		return (retAction == null) ? null: new ActionRet(retAction, true);
 	}
 
 	@Override

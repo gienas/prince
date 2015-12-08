@@ -5,6 +5,7 @@ import cz.yellen.xpg.common.action.Move;
 import cz.yellen.xpg.common.action.PickUp;
 import cz.yellen.xpg.common.stuff.GameObject;
 import prince.GameObjectEnum;
+import prince.domain.AbstractGameObject.ActionRet;
 
 public class SwordGameObject extends AbstractGameObject implements Obstackle {
 
@@ -14,7 +15,7 @@ public class SwordGameObject extends AbstractGameObject implements Obstackle {
 	}
 
 	@Override
-	public Action processObject() {
+	public ActionRet processObject() {
 		//TODO
 		Action retAction = null;
 		if ( isObjectOnMyPosition())
@@ -29,7 +30,7 @@ public class SwordGameObject extends AbstractGameObject implements Obstackle {
 			getContext().changeDirection();
 			retAction = new Move(getContext().getCurrentDirection());
 		}	
-		return retAction;
+		return (retAction == null) ? null: new ActionRet(retAction, true);
 	}
 
 	@Override

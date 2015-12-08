@@ -5,6 +5,7 @@ import cz.yellen.xpg.common.action.PickUp;
 import cz.yellen.xpg.common.action.Use;
 import cz.yellen.xpg.common.stuff.GameObject;
 import prince.GameObjectEnum;
+import prince.domain.AbstractGameObject.ActionRet;
 
 public class BootleGameObject extends AbstractGameObject implements Obstackle {
 
@@ -25,7 +26,7 @@ public class BootleGameObject extends AbstractGameObject implements Obstackle {
 	}
 
 	@Override
-	public Action processObject() {
+	public ActionRet processObject() {
 		// TODO
 		Action retAction = null;
 		if (isObjectOnMyPosition()) {
@@ -33,7 +34,7 @@ public class BootleGameObject extends AbstractGameObject implements Obstackle {
 			System.out.println("get bootle");
 		}
 		
-		return retAction;
+		return (retAction == null) ? null: new ActionRet(retAction, true);
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import cz.yellen.xpg.common.action.Jump;
 import cz.yellen.xpg.common.action.Wait;
 import cz.yellen.xpg.common.stuff.GameObject;
 import prince.GameObjectEnum;
+import prince.domain.AbstractGameObject.ActionRet;
 
 public class ChopperGameObject extends AbstractGameObject implements Obstackle {
 
@@ -20,7 +21,7 @@ public class ChopperGameObject extends AbstractGameObject implements Obstackle {
 	}
 
 	@Override
-	public Action processObject() {
+	public ActionRet processObject() {
 		Action retAction = null;
 		if (isObjectBeforePosition() && isOpening()) {
 			retAction = new Jump(getContext().getCurrentDirection());
@@ -28,7 +29,7 @@ public class ChopperGameObject extends AbstractGameObject implements Obstackle {
 		{
 			retAction = new Wait();
 		}	
-		return retAction;
+		return (retAction == null) ? null: new ActionRet(retAction, true);
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import cz.yellen.xpg.common.action.Enter;
 import cz.yellen.xpg.common.action.Move;
 import cz.yellen.xpg.common.stuff.GameSituation;
 import prince.domain.AbstractGameObject;
+import prince.domain.AbstractGameObject.ActionRet;
 
 /**
  * 
@@ -31,15 +32,19 @@ public class GameSituationManager {
 		GameContext.getContext().applyAlgorithm(algorithm);
 		
 		//default action
-		Action retAction = new Move(GameContext.getContext().getCurrentDirection());
+		ActionRet retAction = new ActionRet(new Move(GameContext.getContext().getCurrentDirection()));
+		
+		int step =0;
 		
 		for ( AbstractGameObject go:  GameContext.getContext().getGameObjectSet())
 		{
-			Action objAction = go.processObject();
+			ActionRet objAction = go.processObject();
 			retAction = objAction != null ? objAction : retAction;
+			if (retAction.isNow()) break;
 		}
 		
-		return retAction;
+		step++;
+		return retAction.getAction();
 	}
 
 	private AlgorithmStrategy selectAlgorithm() {

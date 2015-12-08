@@ -13,7 +13,8 @@ import prince.GameContext;
 import prince.GameObjectEnum;
 
 /**
- * Abstract wrapper class to all game objects 
+ * Abstract wrapper class to all game objects
+ * 
  * @author neugeeug
  *
  */
@@ -22,7 +23,7 @@ public abstract class AbstractGameObject {
 	private GameObject orgObject;
 
 	private GameObjectEnum enumType;
-	
+
 	private Set<AbstractGameObject> stuff = new LinkedHashSet<>();
 
 	public AbstractGameObject(GameObject o, GameObjectEnum type) {
@@ -32,10 +33,11 @@ public abstract class AbstractGameObject {
 		fillObject();
 		setStuff();
 	}
+
 	/**
 	 * 
 	 */
-	public abstract Action processObject();
+	public abstract ActionRet processObject();
 
 	/**
 	 * 
@@ -76,7 +78,7 @@ public abstract class AbstractGameObject {
 			AbstractGameObject ago = GameObjectEnum.createObject(go);
 			stuff.add(ago);
 		}
-		
+
 	}
 
 	public String getType() {
@@ -87,7 +89,7 @@ public abstract class AbstractGameObject {
 	public GameObjectEnum getEnumType() {
 		return enumType;
 	}
-	
+
 	public GameObject getOrgObject() {
 		return orgObject;
 	}
@@ -122,11 +124,47 @@ public abstract class AbstractGameObject {
 				|| (getContext().isCurrentDirectionBackward()
 						&& getContext().getPrince().getPosition() < getPosition());
 	}
-	
+
 	public boolean isObjectOnMyPosition() {
 		return getPosition() == getContext().getPrince().getPosition();
 	}
 
+	public Integer getCurrentId() {
+		return new Integer(getOrgObject().getId());
+	}
 	// public boolean isObject
+
+	public static class ActionRet {
+		Action action;
+		boolean now = false;
+
+		public ActionRet(Action a, boolean n) {
+			// TODO Auto-generated constructor stub
+			action = a;
+			now = n;
+		}
+
+		public ActionRet(Action a)
+		{
+			action = a;
+		}
+		
+		public Action getAction() {
+			return action;
+		}
+
+		public void setAction(Action action) {
+			this.action = action;
+		}
+
+		public boolean isNow() {
+			return now;
+		}
+
+		public void setNow(boolean now) {
+			this.now = now;
+		}
+
+	}
 
 }

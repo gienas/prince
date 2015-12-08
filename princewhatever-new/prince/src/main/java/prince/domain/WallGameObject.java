@@ -12,7 +12,7 @@ public class WallGameObject extends AbstractGameObject implements Obstackle {
 	}
 
 	@Override
-	public Action processObject() {
+	public ActionRet processObject() {
 		//TODO
 		if (isObjectBeforePosition()) getContext().changeDirection();
 		return null;

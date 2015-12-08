@@ -3,6 +3,8 @@ package prince;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +14,10 @@ import cz.yellen.xpg.common.action.Direction;
 import cz.yellen.xpg.common.stuff.GameObject;
 import cz.yellen.xpg.common.stuff.GameSituation;
 import prince.domain.AbstractGameObject;
+import prince.domain.GateGameObject;
+import prince.domain.PortcullisGameObject;
 import prince.domain.PrinceGameObject;
+import prince.domain.TileHelper;
 
 /**
  * 
@@ -34,6 +39,7 @@ public class GameContext {
 			gc.setGameSituation(gs);
 			gc.analyzeEnvFillObjectSet(gs);
 			gc.setInitialDirection();
+			gc.getTileHelper().setContext(gc);
 		}
 		return gc;
 	}
@@ -59,7 +65,11 @@ public class GameContext {
 	private AlgorithmStrategy currentAlgorithm;
 
 	private GameSituation gameSituation;
+	
+	private TileHelper tileHelper = new TileHelper();
 
+	private Map<Integer, PortcullisGameObject.PortculissState> portcullisStates = new HashMap<>();
+	
 	public Direction getCurrentDirection() {
 		// TODO Auto-generated method stub
 		return currentDirection;
@@ -120,6 +130,19 @@ public class GameContext {
 			}
 		});
 		gameObjectSet = new LinkedHashSet<>(list);
+		
+		//delete element
+		Set<AbstractGameObject> set = new HashSet<>();
+		for (AbstractGameObject o: gameObjectSet)
+		{
+			if(st.procesOnlyTypes().contains(o.getEnumType()))
+			{
+				set.add(o);
+			}	
+			
+		}
+		gameObjectSet = set;
+		System.out.println(gameObjectSet);
 	}
 
 	public PrinceGameObject getPrince() {
@@ -153,5 +176,25 @@ public class GameContext {
 	public void setCurrentAlgorithm(AlgorithmStrategy currentAlgorithm) {
 		this.currentAlgorithm = currentAlgorithm;
 	}
+	
+	public TileHelper getTileHelper() {
+		return tileHelper;
+	}
+	
+	public void setTileHelper(TileHelper tileHelper) {
+		this.tileHelper = tileHelper;
+	}
+
+	public Map<Integer, PortcullisGameObject.PortculissState> getPortcullisStates() {
+		return portcullisStates;
+	}
+
+	public void setPortcullisStates(Map<Integer, PortcullisGameObject.PortculissState> portcullisStates) {
+		this.portcullisStates = portcullisStates;
+	}
+
+	
+	
+	
 	
 }

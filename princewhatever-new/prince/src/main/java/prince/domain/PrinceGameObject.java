@@ -24,7 +24,7 @@ public class PrinceGameObject extends AbstractGameObject implements Obstackle {
 	}
 
 	@Override
-	public Action processObject() {
+	public ActionRet processObject() {
 		//TODO
 		return null;
 	}

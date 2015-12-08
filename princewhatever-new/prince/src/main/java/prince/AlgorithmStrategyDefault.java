@@ -1,9 +1,14 @@
 package prince;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import prince.domain.GateGameObject;
 
 public class AlgorithmStrategyDefault  implements AlgorithmStrategy{
 
@@ -17,9 +22,24 @@ public class AlgorithmStrategyDefault  implements AlgorithmStrategy{
 		ordermap.put(GameObjectEnum.GUARD,5);
 		ordermap.put(GameObjectEnum.SWORD,6);
 		ordermap.put(GameObjectEnum.CHOPPER,7);
-		ordermap.put(GameObjectEnum.BOOTLE,8);	
-		ordermap.put(GameObjectEnum.GATE,9);
+		ordermap.put(GameObjectEnum.BOOTLE,8);
+		ordermap.put(GameObjectEnum.TILE,9);
+		ordermap.put(GameObjectEnum.PORTCULLIS,10);
+		ordermap.put(GameObjectEnum.GATE,11);
+		
 		return ordermap; 
 	}
 
+	public Set<GameObjectEnum> procesOnlyTypes()
+	{
+		Set<GameObjectEnum> set = new HashSet<>();
+		set.add(GameObjectEnum.PRINCE);
+		set.add(GameObjectEnum.WALL);
+		set.add(GameObjectEnum.PORTCULLIS);
+		set.add(GameObjectEnum.GATE);
+		set.add(GameObjectEnum.TILE);
+		return set;
+	}
+
+	
 }
