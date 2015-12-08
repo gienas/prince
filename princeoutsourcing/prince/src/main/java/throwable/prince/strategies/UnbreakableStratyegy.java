@@ -1,9 +1,11 @@
 package throwable.prince.strategies;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import cz.yellen.xpg.common.GameStrategy;
@@ -34,7 +36,7 @@ public class UnbreakableStratyegy implements GameStrategy {
 
 	private static Map<String, Integer> positions = new HashMap<>();
 
-	Direction actualDirection = Direction.FORWARD;
+	Direction actualDirection = Direction.BACKWARD;
 
 	int startPosition = 0;
 	int actualPosition = 0;
@@ -53,10 +55,12 @@ public class UnbreakableStratyegy implements GameStrategy {
 	private GameObject sword;
 	private static Set<Integer> porticullisSet = new HashSet<>();
 	private static Integer lastporticullisId = null;
-	
+
 	Set<GameObject> gameObjects = new HashSet<GameObject>();
 
 	Map<Integer, GameObject> gameMap = new HashMap<Integer, GameObject>();
+	
+	Map<String, String> tillActionsMemory = new HashMap<>();
 
 	public UnbreakableStratyegy() {
 	}
@@ -99,19 +103,47 @@ public class UnbreakableStratyegy implements GameStrategy {
 		return actualAction;
 	}
 
-	
 	private boolean gateHandler() {
 		if (gate != null) { // We can see the gate so we move towards the gate
+
+			System.out.println("gate " + gate.getPosition());
+			System.out.println("prince " + prince.getPosition());
+			System.out.println("dir " + actualDirection);
 			String opened = gate.getProperty("opened");
-			if (gate.getPosition() == prince.getPosition() && opened != null && "true".equals(opened)) {
+			// opened != null && "true".equals(opened)
+			if (gate.getPosition() == prince.getPosition()) {
 				actualAction = new Enter(gate);
 				return true;
-			} else if (gate.getPosition() < prince.getPosition()) {
-				actualAction = new Move(Direction.BACKWARD);
-			} else if (gate.getPosition() > prince.getPosition()) {
-				actualAction = new Move(Direction.FORWARD);
+			}
+
+			List<GameObject> tmpList = new ArrayList<>();
+			tmpList.add(gate);
+			GameObject tmpGate = getObstackleInDirectionOfMove(tmpList);
+
+			if (tmpGate != null && opened != null && "true".equals(opened)) {
+				actualAction = move();
+				return true;
+			} else if (tmpGate != null) {
+				switchActualDirection();
+				actualAction = move();
+				return true;
 			}
 		}
+
+		// Action retAction = null;
+		// if ( isObjectOnMyPosition())
+		// {
+		// retAction = new Enter(getOrgObject());
+		// } //&& isOpened() getProperty("opened").equals("true")
+		// else if (isObjectBeforePosition() &&
+		// getProperty("opened").equals("true")) {
+		// retAction = new Move(getContext().getCurrentDirection());
+		//
+		// } else if (isObjectBeforePosition() && isClosed()) {
+		// getContext().changeDirection();
+		// retAction = new Move(getContext().getCurrentDirection());
+		// }
+
 		return false;
 	}
 
@@ -145,37 +177,16 @@ public class UnbreakableStratyegy implements GameStrategy {
 	 */
 	private boolean wallHandler() {
 		if (wall != null) {
-			if (prince.getPosition() < wall.getPosition()) {
-				actualDirection = Direction.BACKWARD;
-			} else {
-				actualDirection = Direction.FORWARD;
+			List<GameObject> tmpList = new ArrayList<GameObject>();
+			tmpList.add(wall);
+			GameObject tmpWall = getObstackleInDirectionOfMove(tmpList);
+			if (tmpWall != null) {
+				switchActualDirection();
 			}
 		}
 		return false;
 	}
 
-	
-	
-	private boolean portcullisHandler() {
-		if (portcullises != null) {
-			for (GameObject portcullis : portcullises) {
-				String opened = portcullis.getProperty("opened");
-				if (prince.getPosition() < portcullis.getPosition() && !"true".equals(opened)) {
-					//porticullisSet.put(new Integer(portcullis.getId()), new HashSet<>() );
-					actualDirection = Direction.BACKWARD;
-					lastporticullisId = portcullis.getId();
-				} else if (prince.getPosition() > portcullis.getPosition() && !"true".equals(opened)) {
-					//porticullisMap.put(new Integer(portcullis.getId()), new HashSet<>() );
-					actualDirection = Direction.FORWARD;
-					lastporticullisId = portcullis.getId();
-				}
-			}
-		}
-		return false;
-	}
-
-	
-	
 	/**
 	 * If prince sees a pit TODO
 	 */
@@ -209,6 +220,100 @@ public class UnbreakableStratyegy implements GameStrategy {
 		return false;
 	}
 
+	private boolean tileHandler() {
+		// TODO Auto-generated method stub
+		GameObject tile = getObstackleInDirectionOfMove(tiles);
+		boolean b = false;
+		if (tile != null) {
+
+			String pictureKey = "KEY " + tile.getId() + actualDirection;
+			String picture = makePicture(pictureKey, gameObjects);
+			String memoryKey = picture;
+			String lastActionForPicture = tillActionsMemory.get(memoryKey);
+			if ( lastActionForPicture != null)
+			{
+				if ("jump".equals(lastActionForPicture))
+				{
+					actualAction = move();
+					tillActionsMemory.put(memoryKey, "move");
+				}	
+				else
+				{
+					actualAction =  jump();
+					tillActionsMemory.put(memoryKey, "jump");
+				}	
+				System.out.println("YES ! .... using memory ...................................................................");
+			}	
+			else //null
+			{
+				//default action jump
+				actualAction = jump();
+				tillActionsMemory.put(memoryKey, "jump");
+			}	
+			
+//			Random random = new Random();
+//			boolean randBool = random.nextBoolean();
+//			if (randBool)
+//				actualAction = jump();
+//			else
+//				actualAction = move();
+			
+			b = true;
+		}
+		return b;
+	}
+
+	private String makePicture(String pictureKey, Set<GameObject> gameObjects) {
+		StringBuilder picture = new StringBuilder();
+		picture.append(pictureKey);
+		for ( GameObject go:  gameObjects)
+		{
+			picture.append(" ID:" + go.getId()+" POS:"+go.getPosition());
+			for (Map.Entry<String, String> entry : go.getProperties().entrySet())
+			{
+			   picture.append(" PROPKEY:"+entry.getKey()+" PROPVAL" + entry.getValue());  
+			}
+		}	
+		return picture.toString();
+	}
+
+	private boolean portcullisHandler() {
+		if (portcullises != null) {
+			GameObject portcullise = getObstackleInDirectionOfMove(portcullises);
+			if (portcullise != null && portcullise.getProperty("closed").equals("true")) {
+				switchActualDirection();
+
+			}
+			actualAction = move();
+
+			// if (isObjectBeforePosition() &&
+			// getProperty("closed").equals("true")) {
+			// getContext().changeDirection();
+			// retAction = new Move(getContext().getCurrentDirection());
+			// } else if (isObjectAnywhereBefore()) {
+			// retAction = new Move(getContext().getCurrentDirection());
+			// }
+			// return (retAction == null) ? null: new ActionRet(retAction,
+			// true);
+		}
+		return true;
+	}
+
+	private boolean chopperHandler() {
+		// TODO Auto-generated method stub
+		if (choppers == null)
+			return false;
+
+		// GameObject chopper = getChopperInDirectionOfMove(choppers);
+		GameObject chopper = getObstackleInDirectionOfMove(choppers);
+		if (chopper != null && chopper.getProperty("opening").equals("true")) {
+			actualAction = new Jump(actualDirection);
+		} else if (chopper != null) {
+			actualAction = new Wait();
+		}
+		return false;
+	}
+
 	private boolean guardHandler() {
 
 		if (guards == null)
@@ -227,21 +332,6 @@ public class UnbreakableStratyegy implements GameStrategy {
 		return false;
 	}
 
-	private boolean chopperHandler() {
-		// TODO Auto-generated method stub
-		if (choppers == null)
-			return false;
-
-		// GameObject chopper = getChopperInDirectionOfMove(choppers);
-		GameObject chopper = getObstackleInDirectionOfMove(choppers);
-		if (chopper != null && chopper.getProperty("opening").equals("true")) {
-			actualAction = new Jump(actualDirection);
-		} else if (chopper != null) {
-			actualAction = new Wait();
-		}
-		return false;
-	}
-
 	private boolean swordHandler() {
 		if (sword != null) { // We can see the gate so we move towards the gate
 			if (sword.getPosition() == prince.getPosition()) {
@@ -252,41 +342,6 @@ public class UnbreakableStratyegy implements GameStrategy {
 				actualAction = new Move(Direction.FORWARD);
 			}
 		}
-		return false;
-	}
-
-	private boolean tileHandler() {
-		// TODO Auto-generated method stub
-		if (tiles == null)
-			return false;
-		int position = prince.getPosition();
-
-		for (GameObject tile : tiles) {
-			if (tile.getPosition() == position) {
-				if (lastporticullisId != null) {
-				if (porticullisSet.contains(tile.getId()))
-				{	
-					porticullisSet.add(tile.getId());
-					switchActualDirection();
-					actualAction = new Move(actualDirection);
-				}	
-				else
-				{
-					actualAction = new Move(actualDirection);
-				}
-				}
-					
-				
-//				Integer count = visitedTile.get(new Integer(tile.getId()));
-//				if (count == null) {
-//					count = new Integer(1);
-//				} else {
-//					count++;
-//				}
-//				visitedTile.put(new Integer(tile.getId()), count);
-			}
-		}
-
 		return false;
 	}
 
@@ -317,23 +372,23 @@ public class UnbreakableStratyegy implements GameStrategy {
 			actualPosition++;
 		}
 
-//		if (tiles != null) {
-//			for (GameObject tile : tiles) {
-//				int position = prince.getPosition();
-//				if (visitedTile == null || visitedTile.isEmpty())
-//					return new Move(actualDirection);
-//				Integer currid = tile.getId();
-//				Integer visited = visitedTile.get(currid);
-//				if (visited == null)
-//					return new Move(actualDirection);
-//
-//				if (tile.getPosition() > position && visited.intValue() > 2)
-//					return new Jump(Direction.BACKWARD);
-//				else if (tile.getPosition() < position && visited.intValue() > 2) {
-//					return new Jump(Direction.FORWARD);
-//				}
-//			}
-//		}
+		// if (tiles != null) {
+		// for (GameObject tile : tiles) {
+		// int position = prince.getPosition();
+		// if (visitedTile == null || visitedTile.isEmpty())
+		// return new Move(actualDirection);
+		// Integer currid = tile.getId();
+		// Integer visited = visitedTile.get(currid);
+		// if (visited == null)
+		// return new Move(actualDirection);
+		//
+		// if (tile.getPosition() > position && visited.intValue() > 2)
+		// return new Jump(Direction.BACKWARD);
+		// else if (tile.getPosition() < position && visited.intValue() > 2) {
+		// return new Jump(Direction.FORWARD);
+		// }
+		// }
+		// }
 		return new Move(actualDirection);
 	}
 
@@ -353,6 +408,8 @@ public class UnbreakableStratyegy implements GameStrategy {
 		} else {
 			actualDirection = Direction.FORWARD;
 		}
+
+		System.out.println("Switched direction to " + actualDirection);
 	}
 
 	private void lookAround(GameSituation situation) {
@@ -383,25 +440,25 @@ public class UnbreakableStratyegy implements GameStrategy {
 		return guard.getProperties().get("dead").equals("true");
 	}
 
-//	class PortcullisHelper
-//	{
-//		Integer id;
-//		//<id tile, >
-//		Map<Integer, Integer> tiles = new HashMap<>();
-//	
-//		public PortcullisHelper(Integer idPort, Integer idTile) {
-//		// TODO Auto-generated constructor stub
-//		}
-//		
-//		public Integer getId() {
-//			return id;
-//		}
-//		
-//		private putTail()
-//		{
-//			
-//		}
-//		
-//	}
-	
+	// class PortcullisHelper
+	// {
+	// Integer id;
+	// //<id tile, >
+	// Map<Integer, Integer> tiles = new HashMap<>();
+	//
+	// public PortcullisHelper(Integer idPort, Integer idTile) {
+	// // TODO Auto-generated constructor stub
+	// }
+	//
+	// public Integer getId() {
+	// return id;
+	// }
+	//
+	// private putTail()
+	// {
+	//
+	// }
+	//
+	// }
+
 }
