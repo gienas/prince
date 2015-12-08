@@ -58,7 +58,7 @@ public class GameContext {
 
 	private Set<AbstractGameObject> gameObjectSet = new LinkedHashSet<>();
 
-	private Direction currentDirection = Direction.BACKWARD;
+	private Direction currentDirection = Direction.FORWARD;
 
 	private PrinceGameObject prince;
 
