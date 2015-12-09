@@ -29,6 +29,7 @@ public class UnbreakableStratyegy implements GameStrategy {
 	private static final String GATE = "gate";
 	private static final String WALL = "wall";
 	private static final String PRINCE = "prince";
+	private static final String PRINCESS = "princess";
 	private static final String BOTTLE = "bottle";
 	private static final String CHOPPER = "chopper";
 	private static final String TILE = "tile";
@@ -44,6 +45,7 @@ public class UnbreakableStratyegy implements GameStrategy {
 	boolean stopProcessing = false;
 
 	GameObject prince;
+	GameObject princess;
 	GameObject wall;
 	GameObject gate;
 	List<GameObject> pits;
@@ -76,6 +78,10 @@ public class UnbreakableStratyegy implements GameStrategy {
 		if (gateHandler())
 			return actualAction;
 
+		if ( princessHandler())
+			return actualAction;
+		
+		
 		if (tileHandler())
 			return actualAction;
 
@@ -187,6 +193,24 @@ public class UnbreakableStratyegy implements GameStrategy {
 		return false;
 	}
 
+
+
+	private boolean princessHandler() {
+			// warning! Pit spotted // the pit handler :D
+			if (princess != null) {
+				List<GameObject> list = new ArrayList<>();
+				list.add(princess);
+				// we are interested in the actual direction located obstacle
+				GameObject princess = getObstackleInDirectionOfMove(list);
+				if (princess != null) {
+					actualAction = new Use(prince, princess);
+					return true;
+				}
+			}
+			return false;
+	}	
+	
+	
 	/**
 	 * If prince sees a pit TODO
 	 */
@@ -194,7 +218,6 @@ public class UnbreakableStratyegy implements GameStrategy {
 		// warning! Pit spotted // the pit handler :D
 		if (pits != null) {
 			// we are interested in the actual direction located obstacle
-
 			GameObject pit = getObstackleInDirectionOfMove(pits);
 			if (pit != null) {
 				actualAction = jump();
@@ -428,6 +451,8 @@ public class UnbreakableStratyegy implements GameStrategy {
 		tiles = GameSituationPredicates.getObjects(TILE, gameObjects);
 
 		portcullises = GameSituationPredicates.getObjects(PORTCULLIS, gameObjects);
+
+		princess = GameSituationPredicates.getObject(PRINCESS, gameObjects);
 	}
 
 	private boolean isGuardDead(GameObject guard) {
