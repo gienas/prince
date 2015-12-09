@@ -59,7 +59,7 @@ public class UnbreakableStratyegy implements GameStrategy {
 	Set<GameObject> gameObjects = new HashSet<GameObject>();
 
 	Map<Integer, GameObject> gameMap = new HashMap<Integer, GameObject>();
-	
+
 	Map<String, String> tillActionsMemory = new HashMap<>();
 
 	public UnbreakableStratyegy() {
@@ -230,34 +230,30 @@ public class UnbreakableStratyegy implements GameStrategy {
 			String picture = makePicture(pictureKey, gameObjects);
 			String memoryKey = picture;
 			String lastActionForPicture = tillActionsMemory.get(memoryKey);
-			if ( lastActionForPicture != null)
-			{
-				if ("jump".equals(lastActionForPicture))
-				{
+			if (lastActionForPicture != null) {
+				if ("jump".equals(lastActionForPicture)) {
 					actualAction = move();
 					tillActionsMemory.put(memoryKey, "move");
-				}	
-				else
-				{
-					actualAction =  jump();
+				} else {
+					actualAction = jump();
 					tillActionsMemory.put(memoryKey, "jump");
-				}	
-				System.out.println("YES ! .... using memory ...................................................................");
-			}	
-			else //null
+				}
+				System.out.println(
+						"YES ! .... using memory ...................................................................");
+			} else // null
 			{
-				//default action jump
+				// default action jump
 				actualAction = jump();
 				tillActionsMemory.put(memoryKey, "jump");
-			}	
-			
-//			Random random = new Random();
-//			boolean randBool = random.nextBoolean();
-//			if (randBool)
-//				actualAction = jump();
-//			else
-//				actualAction = move();
-			
+			}
+
+			// Random random = new Random();
+			// boolean randBool = random.nextBoolean();
+			// if (randBool)
+			// actualAction = jump();
+			// else
+			// actualAction = move();
+
 			b = true;
 		}
 		return b;
@@ -266,14 +262,12 @@ public class UnbreakableStratyegy implements GameStrategy {
 	private String makePicture(String pictureKey, Set<GameObject> gameObjects) {
 		StringBuilder picture = new StringBuilder();
 		picture.append(pictureKey);
-		for ( GameObject go:  gameObjects)
-		{
-			picture.append(" ID:" + go.getId()+" POS:"+go.getPosition());
-			for (Map.Entry<String, String> entry : go.getProperties().entrySet())
-			{
-			   picture.append(" PROPKEY:"+entry.getKey()+" PROPVAL" + entry.getValue());  
+		for (GameObject go : gameObjects) {
+			picture.append(" ID:" + go.getId() + " POS:" + go.getPosition());
+			for (Map.Entry<String, String> entry : go.getProperties().entrySet()) {
+				picture.append(" PROPKEY:" + entry.getKey() + " PROPVAL" + entry.getValue());
 			}
-		}	
+		}
 		return picture.toString();
 	}
 
